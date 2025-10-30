@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2025 by Fifamj06 (http://jsbin.com/suhatef/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walk-Up Song Game Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+        
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: slideIn 0.8s ease-in-out;
+        }
+        
+        .slide.active {
+            display: flex;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .title-slide h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .title-slide p {
+            font-size: 1.8rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .start-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .start-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .song-slide {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .song-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        
+        .song-slide > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .album-art {
+            position: absolute;
+            width: 25vw;
+            height: 25vw;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3;
+            border: 5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            object-fit: cover;
+        }
+        
+        .album-art.right {
+            right: 5%;
+        }
+        
+        .album-art.left {
+            left: 5%;
+        }
+        
+        .song-number {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .song-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hints-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .hint {
+            position: absolute;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 25px 35px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 450px;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .hint.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hint.fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        
+        .hint-2 {
+            font-size: 1.9rem;
+            padding: 30px 45px;
+            max-width: 500px;
+        }
+        
+        .hint-photo {
+            width: 200px;
+            height: 230px;
+            border-radius: 15px;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.8);
+            display: block;
+            margin: 0 auto 10px auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .photo-hint {
+            padding: 25px;
+            max-width: 300px;
+        }
+        
+        /* UPDATED PHOTO CAPTION STYLING */
+        .photo-caption {
+            display: block;
+            margin-top: 10px;
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 600;
+            font-style: italic;
+            text-align: center;
+        }
+        
+        /* Hint positioning - FAR from album art and song number */
+        .hint-1 { 
+            top: 5%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+        }
+        
+        .hint-3 { 
+            bottom: 20%; 
+            left: 50%; 
+            transform: translateX(-50%);
+            max-width: 350px;  /* Narrower to stay centered under song number */
+        }
+        
+        /* Hint-2 alternates sides based on album art position */
+        .song-slide[data-song="1"] .hint-2,
+        .song-slide[data-song="3"] .hint-2,
+        .song-slide[data-song="5"] .hint-2,
+        .song-slide[data-song="7"] .hint-2,
+        .song-slide[data-song="9"] .hint-2,
+        .song-slide[data-song="11"] .hint-2,
+        .song-slide[data-song="13"] .hint-2,
+        .song-slide[data-song="15"] .hint-2,
+        .song-slide[data-song="17"] .hint-2,
+        .song-slide[data-song="19"] .hint-2,
+        .song-slide[data-song="21"] .hint-2,
+        .song-slide[data-song="23"] .hint-2,
+        .song-slide[data-song="25"] .hint-2,
+        .song-slide[data-song="27"] .hint-2,
+        .song-slide[data-song="29"] .hint-2,
+        .song-slide[data-song="31"] .hint-2 {
+            top: 50%;
+            left: 8%;
+            transform: translateY(-50%);
+        }
+        
+        .song-slide[data-song="2"] .hint-2,
+        .song-slide[data-song="4"] .hint-2,
+        .song-slide[data-song="6"] .hint-2,
+        .song-slide[data-song="8"] .hint-2,
+        .song-slide[data-song="10"] .hint-2,
+        .song-slide[data-song="12"] .hint-2,
+        .song-slide[data-song="14"] .hint-2,
+        .song-slide[data-song="16"] .hint-2,
+        .song-slide[data-song="18"] .hint-2,
+        .song-slide[data-song="20"] .hint-2,
+        .song-slide[data-song="22"] .hint-2,
+        .song-slide[data-song="24"] .hint-2,
+        .song-slide[data-song="26"] .hint-2,
+        .song-slide[data-song="28"] .hint-2,
+        .song-slide[data-song="30"] .hint-2 {
+            top: 50%;
+            right: 8%;
+            transform: translateY(-50%);
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        .control-btn {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:hover {
+            background: rgba(0,0,0,0.9);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            width: 100%;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .audio-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .volume-control {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .timer-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        .results-slide {
+            text-align: center;
+        }
+        
+        .results-slide h2 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+        }
+        
+        .results-slide p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .song-number {
+                font-size: 4rem;
+            }
+            .title-slide h1 {
+                font-size: 2.5rem;
+            }
+            .hint {
+                font-size: 0.9rem;
+                padding: 10px 15px;
+            }
+            .album-art {
+                width: 35vw;
+                height: 35vw;
+            }
+            .album-art.right {
+                right: 3%;
+            }
+            .album-art.left {
+                left: 3%;
+            }
+        }
+    </style>
+</head>
+<!-- Title Slide -->
+<div class="slide title-slide active">
+    <h1>🎵 Walk-Up Song Game</h1>
+    <p>Can you guess who chose each song?</p>
+    <button class="start-btn" onclick="startPresentation()">Start Game 🚀</button>
+    <button class="start-btn" onclick="resumePart2()" style="margin-top: 1rem;">Resume Part 2 ▶️</button>
+</div>
+
+<!-- Song 1 -->
+<div class="slide song-slide" data-song="1" data-duration="47" data-album="album01.jpg">
+    <div class="song-number">Song 1</div>
+    <div class="song-title">Listen carefully...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🏈 Loves the KC Chiefs</div>
+        <div class="hint hint-2">📍 Lives in Missouri</div>
+        <div class="hint hint-3">📖 Paperweight Kindle</div>
+    </div>
+    <audio preload="auto">
+        <source src="song01.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 2 -->
+<div class="slide song-slide" data-song="2" data-duration="52" data-album="album02.jpg">
+    <div class="song-number">Song 2</div>
+    <div class="song-title">Who could this be?</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🃏has jokes🤡</div>
+        <div class="hint hint-2">🥋Chuck Norris🐻</div>
+        <div class="hint hint-3">🫠weird but yummy food combo: melted cheese coffee🧀☕ </div>
+    </div>
+    <audio preload="auto">
+        <source src="song02.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 3 -->
+<div class="slide song-slide" data-song="3" data-duration="40" data-album="album03.jpg">
+    <div class="song-number">Song 3</div>
+    <div class="song-title">The beat drops...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🚫Hates pina coladas🍹🥥</div>
+        <div class="hint hint-2">🌮🔔Taco Bell chipotle sauce🤤</div>
+        <div class="hint hint-3">"I am so pale and reflective and I mean that literally"</div>
+    </div>
+    <audio preload="auto">
+        <source src="song03.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 4 -->
+<div class="slide song-slide" data-song="4" data-duration="46" data-album="album04.jpg">
+    <div class="song-number">Song 4</div>
+    <div class="song-title">This one's interesting...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🤢 Cannot stand the smell of celery</div>
+        <div class="hint hint-2 photo-hint">
+            <img src="little-miss-sunshineb.jpg" alt="beauty pageants" class="hint-photo">
+        </div>
+        <div class="hint hint-3 photo-hint">
+            <img src="Alabama.jpg" alt="roll tide" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song04.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 5 -->
+<div class="slide song-slide" data-song="5" data-duration="49" data-album="album05.jpg">
+    <div class="song-number">Song 5</div>
+    <div class="song-title">Guess who...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">✮ Dallas Cowboys 🏈</div>
+        <div class="hint hint-2">🥎 Plays softball</div>
+        <div class="hint hint-3 photo-hint">
+            <img src="tales-from-the-crypt.jpg" alt="horror fan" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song05.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 6 -->
+<div class="slide song-slide" data-song="6" data-duration="47" data-album="album06.jpg">
+    <div class="song-number">Song 6</div>
+    <div class="song-title">This might surprise you!</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🗽Straight out of Brooklyn, New York</div>
+        <div class="hint hint-2"> 🎳 competitive bowler </div>
+        <div class="hint hint-3">🎵 has never missed a New Edition concert at MSG 🏟️</div>
+    </div>
+    <audio preload="auto">
+        <source src="song06.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 7 -->
+<div class="slide song-slide" data-song="7" data-duration="32" data-album="album07.jpg">
+    <div class="song-number">Song 7</div>
+    <div class="song-title">Who could this be?</div>
+    <div class="hints-container">
+        <div class="hint hint-1">💪🏼This song keeps me motivated</div>
+        <div class="hint hint-2">👟Enjoys listening to EDM while walking</div>
+        <div class="hint hint-3">🤩Met Hoda Kotb at the Today Show!</div>
+    </div>
+    <audio preload="auto">
+        <source src="song07.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 8 -->
+<div class="slide song-slide" data-song="8" data-duration="46" data-album="album08.jpg">
+    <div class="song-number">Song 8</div>
+    <div class="song-title">The beat drops...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🎤︎︎My first concert was MC Hammer</div>
+        <div class="hint hint-2">⛴️Would love to go on a Mediterranean cruise</div>
+        <div class="hint hint-3">🎖️Joined the military at age 36</div>
+    </div>
+    <audio preload="auto">
+        <source src="song08.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 9 -->
+<div class="slide song-slide" data-song="9" data-duration="28" data-album="album09.jpg">
+    <div class="song-number">Song 9</div>
+    <div class="song-title">This one's festive...</div>
+    <div class="hints-container">
+        <div class="hint hint-1 photo-hint">
+            <img src="mariah-carey.jpg" alt="favorite holiday song" class="hint-photo">
+        </div>
+        <div class="hint hint-2">🏆bracket champion 🏀🏈</div>
+        <div class="hint hint-3">📍☆Austin Texas🤘</div>
+    </div>
+    <audio preload="auto">
+        <source src="song09.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 10 -->
+<div class="slide song-slide" data-song="10" data-duration="35" data-album="album10.jpg">
+    <div class="song-number">Song 10</div>
+    <div class="song-title">Guess who</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🚢Cruisin⚓️</div>
+        <div class="hint hint-2">🟢O🦆🏈</div>
+        <div class="hint hint-3">💨♨️🍳A must have!</div>
+    </div>
+    <audio preload="auto">
+        <source src="song10.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 11 -->
+<div class="slide song-slide" data-song="11" data-duration="25" data-album="album11.jpg">
+    <div class="song-number">Song 11</div>
+    <div class="song-title">This one's a classic</div>
+    <div class="hints-container">
+        <div class="hint hint-1">📞CSR🌟</div>
+        <div class="hint hint-2">💜Favorite team:🏈🐦‍⬛</div>
+        <div class="hint hint-3"> 👩🏽‍🍳dream jobs: cooking or coaching 📋 🧢 </div>
+    </div>
+    <audio preload="auto">
+        <source src="song11.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 12 -->
+<div class="slide song-slide" data-song="12" data-duration="55" data-album="album12.jpg">
+    <div class="song-number">Song 12</div>
+    <div class="song-title">I wonder who could this be?</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🇬🇧🫖💂🏻‍♂️👑</div>
+        <div class="hint hint-2">I❤️my🐕🦮</div>
+        <div class="hint hint-3">🚀Nasa🌕</div>
+    </div>
+    <audio preload="auto">
+        <source src="song12.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 13 -->
+<div class="slide song-slide" data-song="13" data-duration="34" data-album="album13.jpg">
+    <div class="song-number">Song 13</div>
+    <div class="song-title">This one rocks...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🌽dad jokes🤦‍♂️</div>
+        <div class="hint hint-2">Favorite snack 🇬🇫🥨</div>
+        <div class="hint hint-3 photo-hint">
+            <img src="the-undertaker.jpg" alt="favorite wrestler" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song13.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 14 -->
+<div class="slide song-slide" data-song="14" data-duration="37" data-album="album14.jpg">
+    <div class="song-number">Song 14</div>
+    <div class="song-title">This one's interesting...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🚩Lives in Missouri</div>
+        <div class="hint hint-2 photo-hint">
+            <img src="baseball-bat.jpg" alt="Joe Clark is the most exciting person I've ever met" class="hint-photo">
+        </div>
+        <div class="hint hint-3">🚼Once ran a 24hr childcare business🍼</div>
+    </div>
+    <audio preload="auto">
+        <source src="song14.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 15 -->
+<div class="slide song-slide" data-song="15" data-duration="31" data-album="album15.jpg">
+    <div class="song-number">Song 15</div>
+    <div class="song-title">Halfway there...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🎼This song represents having a positive, calm outlook on the day with no objections🧘🏻</div>
+        <div class="hint hint-2">📾 "I listened to this song with my step dad every year on the first day of school"🫶🏻</div>
+        <div class="hint hint-3 photo-hint">
+            <img src="the-grinch.jpg" alt="favorite holiday movie" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song15.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Intermission Slide -->
+<div class="slide results-slide">
+    <h2>🎬 Intermission</h2>
+    <p>To be continued...</p>
+    <p style="margin-top: 2rem; font-size: 1.2rem;">See you at the next meeting! 🎧.. </p>
+    <button class="start-btn" onclick="restartPresentation()" style="margin-top: 3rem;">🔄 Back to Start</button>
+</div>
+
+<!-- Song 16 -->
+<div class="slide song-slide" data-song="16" data-duration="40" data-album="album16.jpg">
+    <div class="song-number">Song 16</div>
+    <div class="song-title">Drop the beat...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🔫 Fan of 007 🍸</div>
+        <div class="hint hint-2">Access R☆ckstar </div>
+        <div class="hint hint-3"> 🇺🇸🎖️🫡 military retiree</div>
+    </div>
+    <audio preload="auto">
+        <source src="song16.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 17 -->
+<div class="slide song-slide" data-song="17" data-duration="46" data-album="album17.jpg">
+    <div class="song-number">Song 17</div>
+    <div class="song-title">Who could this be?</div>
+    <div class="hints-container">
+        <div class="hint hint-1"> 🍣🥢Loves sushi</div>
+        <div class="hint hint-2">📍Lives in St. Louis, MO </div>
+        <div class="hint hint-3">🌠CSR </div>
+    </div>
+    <audio preload="auto">
+        <source src="song17.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 18 -->
+<div class="slide song-slide" data-song="18" data-duration="47" data-album="album18.jpg">
+    <div class="song-number">Song 18</div>
+    <div class="song-title">Guess who...</div>
+    <div class="hints-container">
+        <div class="hint hint-1 photo-hint">
+            <img src="cyndi-Lauper.jpg" alt="First concert when I was in 5th grade" class="hint-photo">
+        </div>
+        <div class="hint hint-2 photo-hint">
+            <img src="cat-lady.jpg" alt="cat lady" class="hint-photo">
+        </div>
+        <div class="hint hint-3">🎰most likely to win the lottery💰</div>
+    </div>
+    <audio preload="auto">
+        <source src="song18.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 19 -->
+<div class="slide song-slide" data-song="19" data-duration="47" data-album="album19.jpg">
+    <div class="song-number">Song 19</div>
+    <div class="song-title">Let the hot mic drop...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">📺 Enjoys trashy TV shows 🚮</div>
+        <div class="hint hint-2">🎵"I take singing lessons and first recital is at the end of the year!"🎵</div>
+        <div class="hint hint-3">😊"Always happy to help no matter the time, question, or customer."</div>
+    </div>
+    <audio preload="auto">
+        <source src="song19.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 20 -->
+<div class="slide song-slide" data-song="20" data-duration="33" data-album="album20.jpg">
+    <div class="song-number">Song 20</div>
+    <div class="song-title">Can you guess?</div>
+    <div class="hints-container">
+        <div class="hint hint-1"> 📺 has seen every episode of Selling Sunset</div>
+        <div class="hint hint-2">favorite historical figure: Notorious RBG👩‍⚖️⚖️</div>
+        <div class="hint hint-3 photo-hint">
+            <img src="Rafferty.jpg" alt="alien abduction skits" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song20.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 21 -->
+<div class="slide song-slide" data-song="21" data-duration="40" data-album="album21.jpg">
+    <div class="song-number">Song 21</div>
+    <div class="song-title">Guess who...</div>
+    <div class="hints-container">
+        <div class="hint hint-1"> ⚓Navy veteran ⛴ </div>
+        <div class="hint hint-2 photo-hint"> 
+            <img src="90day.jpg" alt="90 Day Fiancé" class="hint-photo">
+        </div>
+        <div class="hint hint-3">⚡My superpower would be time travel⏳</div>
+    </div>
+    <audio preload="auto">
+        <source src="song21.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 22 -->
+<div class="slide song-slide" data-song="22" data-duration="30" data-album="album22.jpg">
+    <div class="song-number">Song 22</div>
+    <div class="song-title">Can you twerk to this?</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🏋🏽‍♀️show me the gym🤸🏾‍♀</div>
+        <div class="hint hint-2">☺️"Always have a positive insight. No one can steal my joy and happiness or how I provide customer service."</div>
+        <div class="hint hint-3 photo-hint">
+            <img src="swarm.jpg" alt="buzzzz" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song22.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 23 -->
+<div class="slide song-slide" data-song="23" data-duration="43" data-album="album23.jpg">
+    <div class="song-number">Song 23</div>
+    <div class="song-title">Mute  your mics for this one...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">☕coffee smells like skunk🦨</div>
+        <div class="hint hint-2">💗loves pugs🐶</div>
+        <div class="hint hint-3">👑Most likely to run the world!🌎</div>
+    </div>
+    <audio preload="auto">
+        <source src="song23.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 24 -->
+<div class="slide song-slide" data-song="24" data-duration="33" data-album="album24.jpg">
+    <div class="song-number">Song 24</div>
+    <div class="song-title">This goes way back...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🎲loves family trivia night 𖨆♡𖨆𖨆♡𖨆</div>
+        <div class="hint hint-2">𝐖❤️Washington Commanders🏈</div>
+        <div class="hint hint-3">🛒I was once a layaway manager at Walmart🔆</div>
+    </div>
+    <audio preload="auto">
+        <source src="song24.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 25 -->
+<div class="slide song-slide" data-song="25" data-duration="31" data-album="album25.jpg">
+    <div class="song-number">Song 25</div>
+    <div class="song-title">This one's interesting...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🫢hates the smell of Chinese food🥡🥢</div>
+        <div class="hint hint-2 photo-hint">
+            <img src="rundmc.jpg" alt="first concert" class="hint-photo">
+        </div>
+        <div class="hint hint-3">strangest place visited: musa underwater museum</div>
+    </div>
+    <audio preload="auto">
+        <source src="song25.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 26 -->
+<div class="slide song-slide" data-song="26" data-duration="28" data-album="album26.jpg">
+    <div class="song-number">Song 26</div>
+    <div class="song-title">Can you guess?</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🎯first job was at Target🎯</div>
+        <div class="hint hint-2">🎶"It's my hype music that gets me geared to help and research and lead." </div>
+        <div class="hint hint-3 photo-hint">
+            <img src="hillseyes.jpg" alt="favorite horror film" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song26.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 27 -->
+<div class="slide song-slide" data-song="27" data-duration="35" data-album="album27.jpg">
+    <div class="song-number">Song 27</div>
+    <div class="song-title">Guess who...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">💜I embrace who I am</div>
+        <div class="hint hint-2">🌺ready to face my fears and rise above any challenges that come my way💪🏼</div>
+        <div class="hint hint-3">📍I am from the Philippines🌴</div>
+    </div>
+    <audio preload="auto">
+        <source src="song27.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 28 -->
+<div class="slide song-slide" data-song="28" data-duration="50" data-album="album28.jpg">
+    <div class="song-number">Song 28</div>
+    <div class="song-title">Here's a tough one...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">📍born in Denver, CO🦴</div>
+        <div class="hint hint-2">❤️‍🔥🎶I was told by someone(playfully) that I don't play around but get to the meat of the problem so that I can find the solution.💀🎸</div>
+        <div class="hint hint-3">🐾🤍Most likely to adopt pets🐱🐶🐕🐈‍⬛🐾</div>
+    </div>
+    <audio preload="auto">
+        <source src="song28.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 29 -->
+<div class="slide song-slide" data-song="29" data-duration="55" data-album="album29.jpg">
+    <div class="song-number">Song 29</div>
+    <div class="song-title">You'll never guess…</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🏈"Song is played right before the 4th quarter at my favorite college football team's home games." 𝐖</div>
+        <div class="hint hint-2">📜"whether it's an easy day or a stressful day at work, it's always important to just smile and Jump Around🧀!"</div>
+        <div class="hint hint-3">🤩has met so many celebrities🦸‍♂️</div>
+    </div>
+    <audio preload="auto">
+        <source src="song29.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 30 -->
+<div class="slide song-slide" data-song="30" data-duration="32" data-album="album30.jpg">
+    <div class="song-number">Song 30</div>
+    <div class="song-title">Who's there??</div>
+    <div class="hints-container">
+        <div class="hint hint-1">🖤favorite color is black🎨</div>
+        <div class="hint hint-2">🥣loves to bake🧁</div>
+        <div class="hint hint-3 photo-hint">
+            <img src="slugbug.jpg" alt="owns a slug bug" class="hint-photo">
+        </div>
+    </div>
+    <audio preload="auto">
+        <source src="song30.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Song 31 -->
+<div class="slide song-slide" data-song="31" data-duration="42" data-album="album31.jpg">
+    <div class="song-number">Song 31</div>
+    <div class="song-title">Final song...</div>
+    <div class="hints-container">
+        <div class="hint hint-1">💡I like to be creative🎨</div>
+        <div class="hint hint-2">🎖️Vietnam Veteran</div>
+        <div class="hint hint-3">📈I was new to QA and had to train hard and fast to learn how to do the new FOS Metrics and keep up with the new steps that were given to me.📊</div>
+    </div>
+    <audio preload="auto">
+        <source src="song31.wav" type="audio/wav">
+    </audio>
+</div>
+
+<!-- Results Slide -->
+<div class="slide results-slide">
+    <h2>🎉 Game Over!</h2>
+    <p>Thanks for playing!</p>
+    <p style="margin-top: 2rem; font-size: 1.2rem;">Did you guess them all? 🎵</p>
+    <button class="start-btn" onclick="restartPresentation()" style="margin-top: 3rem;">🔄 Play Again</button>
+</div>
+    <!-- Controls -->
+    <div class="controls">
+        <button class="control-btn" onclick="previousSlide()" id="prevBtn" disabled>⏮️ Previous</button>
+        <button class="control-btn" onclick="pauseResume()" id="pauseBtn">⏸️ Pause</button>
+        <button class="control-btn" onclick="nextSlide()" id="nextBtn">⏭️ Next</button>
+        <button class="control-btn" onclick="restartPresentation()" id="restartBtn">🔄 Restart</button>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
+    <!-- Timer Display -->
+    <div class="timer-display" id="timerDisplay" style="display: none;">45</div>
+    
+    <!-- Audio Controls -->
+    <div class="audio-controls">
+        <input type="range" class="volume-control" id="volumeSlider" min="0" max="100" value="70" 
+               oninput="adjustVolume(this.value)" style="width: 100px;">
+        <span style="color: white; font-size: 0.9rem;">🔊</span>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        let isPlaying = false;
+        let isPaused = false;
+        let currentAudio = null;
+        let slideTimer = null;
+        let countdownInterval = null;
+        let songDuration = 45;
+        let timeRemaining = songDuration;
+        let hintTimers = [];
+        
+        let audioUnlocked = false;
+        
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            
+            const silentAudio = document.createElement('audio');
+            silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+            silentAudio.play().then(() => {
+                silentAudio.pause();
+                audioUnlocked = true;
+            }).catch(() => {});
+            
+            const allAudio = document.querySelectorAll('audio');
+            allAudio.forEach(audio => {
+                audio.load();
+            });
+        }
+        
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        function startPresentation() {
+            unlockAudio();
+            setTimeout(() => goToSlide(1), 100);
+        }
+        
+        function resumePart2() {
+            unlockAudio();
+            setTimeout(() => goToSlide(17), 100);
+        }
+        
+        function restartPresentation() {
+            goToSlide(0);
+        }
+        
+        function goToSlide(index) {
+            stopCurrentSlide();
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            
+            if (slides[currentSlide].classList.contains('song-slide')) {
+                const songNumber = slides[currentSlide].dataset.song;
+                const albumArt = slides[currentSlide].dataset.album;
+                
+                const paddedSongNumber = songNumber.toString().padStart(2, '0');
+                slides[currentSlide].style.backgroundImage = `url('stage${paddedSongNumber}.jpg')`;
+                
+                const existingAlbumArt = slides[currentSlide].querySelector('.album-art');
+                if (existingAlbumArt) {
+                    existingAlbumArt.remove();
+                }
+                
+                if (albumArt) {
+                    const albumArtElement = document.createElement('img');
+                    albumArtElement.src = albumArt;
+                    albumArtElement.className = 'album-art';
+                    
+                    if (parseInt(songNumber) % 2 === 1) {
+                        albumArtElement.classList.add('right');
+                    } else {
+                        albumArtElement.classList.add('left');
+                    }
+                    
+                    slides[currentSlide].appendChild(albumArtElement);
+                }
+            }
+            
+            // 🆕 AUTO-GENERATE PHOTO CAPTIONS FROM ALT TEXT
+            addPhotoCaptions();
+            
+            updateControls();
+            
+            if (slides[currentSlide].classList.contains('song-slide')) {
+                startSongSlide();
+            } else {
+                document.getElementById('timerDisplay').style.display = 'none';
+                document.getElementById('progressFill').style.width = '0%';
+            }
+        }
+        
+        // 🆕 AUTOMATIC PHOTO CAPTION FUNCTION
+        function addPhotoCaptions() {
+            const photoHints = slides[currentSlide].querySelectorAll('.photo-hint img.hint-photo');
+            photoHints.forEach(img => {
+                const altText = img.getAttribute('alt');
+                if (altText && altText.trim()) {
+                    // Check if caption already exists to avoid duplicates
+                    const existingCaption = img.nextElementSibling;
+                    if (!existingCaption || !existingCaption.classList.contains('photo-caption')) {
+                        const caption = document.createElement('span');
+                        caption.className = 'photo-caption';
+                        caption.textContent = altText;
+                        img.parentElement.appendChild(caption);
+                    }
+                }
+            });
+        }
+        
+        function startSongSlide() {
+            const slide = slides[currentSlide];
+            currentAudio = slide.querySelector('audio');
+            
+            songDuration = parseInt(slide.dataset.duration) || 45;
+            
+            timeRemaining = songDuration;
+            isPlaying = true;
+            isPaused = false;
+            
+            document.getElementById('timerDisplay').style.display = 'block';
+            
+            let countdownBuffer = 3;
+            const timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.textContent = `GET READY: ${countdownBuffer}`;
+            timerDisplay.style.fontSize = '1.5rem';
+            timerDisplay.style.background = 'rgba(255, 165, 0, 0.9)';
+            
+            countdownInterval = setInterval(() => {
+                countdownBuffer--;
+                if (countdownBuffer > 0) {
+                    timerDisplay.textContent = `GET READY: ${countdownBuffer}`;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    
+                    timerDisplay.style.fontSize = '1.1rem';
+                    timerDisplay.style.background = 'rgba(0,0,0,0.7)';
+                    
+                    if (currentAudio && currentAudio.src) {
+                        currentAudio.currentTime = 0;
+                        currentAudio.play().catch(e => console.log('Audio play failed:', e));
+                    }
+                    
+                    startHintAnimations();
+                    startTimer();
+                }
+            }, 1000);
+        }
+        
+        function startHintAnimations() {
+            const hints = slides[currentSlide].querySelectorAll('.hint');
+            const hintDuration = songDuration / hints.length;
+            const initialDelay = 2000;
+            
+            hints.forEach((hint, index) => {
+                const showTimer = setTimeout(() => {
+                    hint.classList.add('show');
+                }, initialDelay + (index * hintDuration * 1000));
+                
+                if (index < hints.length - 1) {
+                    const hideTimer = setTimeout(() => {
+                        hint.classList.add('fade-out');
+                    }, initialDelay + ((index + 1.5) * hintDuration * 1000));
+                    hintTimers.push(hideTimer);
+                }
+                
+                hintTimers.push(showTimer);
+            });
+        }
+        
+        function startTimer() {
+            updateTimerDisplay();
+            slideTimer = setInterval(() => {
+                if (!isPaused) {
+                    timeRemaining--;
+                    updateTimerDisplay();
+                    updateProgressBar();
+                    
+                    if (timeRemaining <= 0) {
+                        nextSlide();
+                    }
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            document.getElementById('timerDisplay').textContent = timeRemaining;
+        }
+        
+        function updateProgressBar() {
+            const progress = ((songDuration - timeRemaining) / songDuration) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function stopCurrentSlide() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            
+            if (slideTimer) {
+                clearInterval(slideTimer);
+                slideTimer = null;
+            }
+            
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            
+            hintTimers.forEach(timer => clearTimeout(timer));
+            hintTimers = [];
+            
+            const currentSlideElement = slides[currentSlide];
+            if (currentSlideElement) {
+                const hints = currentSlideElement.querySelectorAll('.hint');
+                hints.forEach(hint => {
+                    hint.classList.remove('show', 'fade-out');
+                });
+            }
+            
+            isPlaying = false;
+            isPaused = false;
+        }
+        
+        function pauseResume() {
+            if (!isPlaying) return;
+            
+            isPaused = !isPaused;
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            if (isPaused) {
+                currentAudio?.pause();
+                pauseBtn.textContent = '▶️ Resume';
+            } else {
+                currentAudio?.play();
+                pauseBtn.textContent = '⏸️ Pause';
+            }
+        }
+        
+        function previousSlide() {
+            if (currentSlide > 0) {
+                goToSlide(currentSlide - 1);
+            }
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                goToSlide(currentSlide + 1);
+            }
+        }
+        
+        function updateControls() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+            
+            if (slides[currentSlide].classList.contains('song-slide')) {
+                pauseBtn.style.display = 'block';
+                pauseBtn.textContent = '⏸️ Pause';
+            } else {
+                pauseBtn.style.display = 'none';
+            }
+        }
+        
+        function adjustVolume(value) {
+            if (currentAudio) {
+                currentAudio.volume = value / 100;
+            }
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            switch(e.code) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousSlide();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'Space':
+                    e.preventDefault();
+                    pauseResume();
+                    break;
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            adjustVolume(70);
+        });
+    </script>
+</body>
+</html>
+
+<!-- 
+═══════════════════════════════════════════════════════════════════════════
+                    📝 CUSTOMIZATION INSTRUCTIONS
+═══════════════════════════════════════════════════════════════════════════
+
+✅ PHOTO CAPTIONS ARE NOW AUTOMATIC!
+   - All images with alt text will show captions automatically
+   - Just set your alt text and the caption appears below the image
+
+═══════════════════════════════════════════════════════════════════════════
+                    🎨 OPTIONAL CUSTOMIZATIONS YOU CAN MAKE
+═══════════════════════════════════════════════════════════════════════════
+
+1️⃣ MAKE SONG TITLE MATCH SONG NUMBER COLOR (GRADIENT EFFECT)
+   ───────────────────────────────────────────────────────────────────────
+   Find this CSS (around line 149):
+   
+   .song-title {
+       font-size: 2rem;
+       margin-bottom: 2rem;
+       opacity: 0.9;
+   }
+   
+   Replace with:
+   
+   .song-title {
+       font-size: 2rem;
+       margin-bottom: 2rem;
+       background: linear-gradient(45deg, #fff, #e0e0e0);
+       -webkit-background-clip: text;
+       -webkit-text-fill-color: transparent;
+       background-clip: text;
+   }
+
+═══════════════════════════════════════════════════════════════════════════
+
+2️⃣ ADD TEXT SHADOW TO ALL SLIDES (FOR DARK BACKGROUNDS)
+   ───────────────────────────────────────────────────────────────────────
+   Find .song-slide CSS (around line 86) and add this line:
+   
+   .song-slide {
+       position: relative;
+       background-size: cover;
+       background-position: center;
+       background-repeat: no-repeat;
+       text-shadow: 2px 2px 8px rgba(0,0,0,0.9);  /* ← ADD THIS LINE */
+   }
+   
+   This adds a shadow to ALL text on ALL slides, making it readable even
+   on dark stage backgrounds.
+
+═══════════════════════════════════════════════════════════════════════════
+
+3️⃣ WIDEN ALBUM ART FOR SPECIFIC SONGS
+   ───────────────────────────────────────────────────────────────────────
+   If you want to make the album art bigger for certain songs, add this
+   CSS at the end of the <style> section (around line 385):
+   
+   /* Make album art bigger for Song 5 */
+   .song-slide[data-song="5"] .album-art {
+       width: 35vw;
+       height: 35vw;
+   }
+   
+   /* Make album art bigger for Songs 10 and 15 */
+   .song-slide[data-song="10"] .album-art,
+   .song-slide[data-song="15"] .album-art {
+       width: 30vw;
+       height: 30vw;
+   }
+   
+   Change the numbers to target different songs!
+
+═══════════════════════════════════════════════════════════════════════════
+
+4️⃣ CHANGE FONT COLOR FOR SPECIFIC SLIDES (PER-SLIDE BASIS)
+   ───────────────────────────────────────────────────────────────────────
+   If only certain slides have dark backgrounds and need lighter text:
+   
+   /* Make Song 3 text white with strong shadow */
+   .song-slide[data-song="3"] {
+       color: white;
+       text-shadow: 2px 2px 10px rgba(0,0,0,0.9);
+   }
+   
+   /* Make Songs 7 and 12 text yellow */
+   .song-slide[data-song="7"],
+   .song-slide[data-song="12"] {
+       color: #ffeb3b;
+       text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+   }
+
+═══════════════════════════════════════════════════════════════════════════
+
+💡 TIP: Test your changes in a browser first to see how they look!
+    You can always undo changes by removing the CSS you added.
+
+═══════════════════════════════════════════════════════════════════════════
+-->
