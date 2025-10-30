@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walk-Up Song Game - Part 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .part-badge {
+            text-align: center;
+            background: #ff9800;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .name-input {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .name-input label {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .name-input input {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 300px;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .column {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .column h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .item.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+            transform: scale(1.02);
+        }
+
+        .item.matched {
+            background: #c8e6c9;
+            border-color: #4caf50;
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .item.matched:hover {
+            transform: none;
+        }
+
+        .song-item {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .name-item {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-reset {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-check {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-check:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-undo {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-undo:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+        }
+
+        .btn-undo:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .message.error {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .names-column {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 968px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Walk-Up Song Matching Game 🎵</h1>
+        <div class="part-badge">📝 PART 1 - Songs 1-15</div>
+        <p class="instructions">Click a song, then click a team member to match them! Match all 15 correctly!</p>
+        
+        <div class="name-input">
+            <label for="playerName">Your Name:</label>
+            <input type="text" id="playerName" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="score">Matches: <span id="matchCount">0</span> / 15</div>
+
+        <div class="game-area">
+            <div class="column">
+                <h2>Songs 1-15</h2>
+                <div id="songsColumn"></div>
+            </div>
+            
+            <div class="column">
+                <h2>Team Members (All 31)</h2>
+                <div id="namesColumn" class="names-column"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-reset" onclick="resetGame()">Reset Game</button>
+            <button class="btn btn-undo" id="undoBtn" onclick="undoLastMatch()" disabled>Undo Last Match</button>
+            <button class="btn btn-check" id="submitBtn" onclick="submitAnswers()" disabled>Submit Answers</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        // Part 1: Songs 1-15
+        const songData = [
+            { song: "Song 1", correctName: "Michelle" },
+            { song: "Song 2", correctName: "Maria" },
+            { song: "Song 3", correctName: "Leslie \"May\"" },
+            { song: "Song 4", correctName: "Shauna" },
+            { song: "Song 5", correctName: "Eddie" },
+            { song: "Song 6", correctName: "Liz" },
+            { song: "Song 7", correctName: "Gracie" },
+            { song: "Song 8", correctName: "Meiketa" },
+            { song: "Song 9", correctName: "Celia" },
+            { song: "Song 10", correctName: "Amanda C" },
+            { song: "Song 11", correctName: "Robert" },
+            { song: "Song 12", correctName: "Joy" },
+            { song: "Song 13", correctName: "Matt" },
+            { song: "Song 14", correctName: "Monica" },
+            { song: "Song 15", correctName: "Ayshia" }
+        ];
+
+        // All 31 team members (alphabetical)
+        const teamMembers = [
+            "Alfred", "Ali", "Amanda C", "Ayshia", "Brittany", "Celia", "Cheryl", 
+            "Cheyenne", "Cindy", "Eddie", "Gracie", "Jeremy", "Joy", "Leslie \"May\"", 
+            "Liz", "Maria", "Mary", "Matt", "Meiketa", "Michelle", "Monica", "Princess", 
+            "Q", "Rico", "Robert", "Roger", "Shauna", "Tina", "Tonya", "Vanessa", "Yvie"
+        ];
+
+        let matches = {};
+        let matchHistory = [];
+        let selectedSong = null;
+        let selectedName = null;
+
+        function initGame() {
+            const songsColumn = document.getElementById('songsColumn');
+            const namesColumn = document.getElementById('namesColumn');
+
+            songsColumn.innerHTML = '';
+            namesColumn.innerHTML = '';
+
+            songData.forEach((item, index) => {
+                const songDiv = document.createElement('div');
+                songDiv.className = 'item song-item';
+                songDiv.textContent = item.song;
+                songDiv.dataset.songId = index;
+                songDiv.onclick = () => selectSong(index, songDiv);
+                songsColumn.appendChild(songDiv);
+            });
+
+            teamMembers.forEach((name) => {
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'item name-item';
+                nameDiv.textContent = name;
+                nameDiv.dataset.name = name;
+                nameDiv.onclick = () => selectName(name, nameDiv);
+                namesColumn.appendChild(nameDiv);
+            });
+        }
+
+        function selectSong(songId, element) {
+            if (element.classList.contains('matched')) return;
+
+            document.querySelectorAll('.song-item').forEach(el => el.classList.remove('selected'));
+            
+            selectedSong = songId;
+            element.classList.add('selected');
+
+            if (selectedName !== null) {
+                makeMatch();
+            }
+        }
+
+        function selectName(name, element) {
+            if (element.classList.contains('matched')) return;
+
+            document.querySelectorAll('.name-item').forEach(el => el.classList.remove('selected'));
+            
+            selectedName = name;
+            element.classList.add('selected');
+
+            if (selectedSong !== null) {
+                makeMatch();
+            }
+        }
+
+        function makeMatch() {
+            matches[selectedSong] = selectedName;
+            matchHistory.push({ songId: selectedSong, name: selectedName });
+            
+            const songElement = document.querySelector(`.song-item[data-song-id="${selectedSong}"]`);
+            const nameElement = document.querySelector(`.name-item[data-name="${selectedName}"]`);
+            
+            songElement.classList.add('matched');
+            songElement.classList.remove('selected');
+            nameElement.classList.add('matched');
+            nameElement.classList.remove('selected');
+
+            document.getElementById('matchCount').textContent = Object.keys(matches).length;
+            document.getElementById('undoBtn').disabled = false;
+            updateSubmitButton();
+
+            selectedSong = null;
+            selectedName = null;
+
+            if (Object.keys(matches).length === 15) {
+                setTimeout(() => {
+                    showMessage('All matches made! Click "Submit Answers" to get your code!', 'success');
+                }, 300);
+            }
+        }
+
+        function resetGame() {
+            matches = {};
+            matchHistory = [];
+            selectedSong = null;
+            selectedName = null;
+            document.getElementById('matchCount').textContent = '0';
+            document.getElementById('undoBtn').disabled = true;
+            document.getElementById('playerName').value = '';
+            updateSubmitButton();
+            hideMessage();
+            initGame();
+        }
+
+        function undoLastMatch() {
+            if (matchHistory.length === 0) return;
+
+            const lastMatch = matchHistory.pop();
+            delete matches[lastMatch.songId];
+
+            const songElement = document.querySelector(`.song-item[data-song-id="${lastMatch.songId}"]`);
+            const nameElement = document.querySelector(`.name-item[data-name="${lastMatch.name}"]`);
+            
+            if (songElement) songElement.classList.remove('matched');
+            if (nameElement) nameElement.classList.remove('matched');
+
+            document.getElementById('matchCount').textContent = Object.keys(matches).length;
+
+            if (matchHistory.length === 0) {
+                document.getElementById('undoBtn').disabled = true;
+            }
+
+            updateSubmitButton();
+            hideMessage();
+        }
+
+        function updateSubmitButton() {
+            const playerName = document.getElementById('playerName').value.trim();
+            const allMatched = Object.keys(matches).length === 15;
+            document.getElementById('submitBtn').disabled = !playerName || !allMatched;
+        }
+
+        document.getElementById('playerName').addEventListener('input', updateSubmitButton);
+
+        function submitAnswers() {
+            const playerName = document.getElementById('playerName').value.trim();
+            
+            if (!playerName) {
+                showMessage('Please enter your name!', 'error');
+                return;
+            }
+
+            if (Object.keys(matches).length !== 15) {
+                showMessage('Please match all 15 songs before submitting!', 'error');
+                return;
+            }
+
+            const answerArray = [];
+            for (let i = 0; i < 15; i++) {
+                answerArray.push(matches[i] || '');
+            }
+            const submissionCode = btoa(`PART1|${playerName}|${answerArray.join(',')}`);
+
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: 10px; border: 3px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">✅ Part 1 Submitted!</h3>
+                    <p style="margin-bottom: 15px;"><strong>Player:</strong> ${playerName}</p>
+                    <p style="margin-bottom: 15px;">Copy this code and send it to your game organizer:</p>
+                    <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; font-family: monospace; word-break: break-all; margin-bottom: 15px; font-size: 0.9em;">
+                        ${submissionCode}
+                    </div>
+                    <button onclick="copyCode('${submissionCode}')" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                        Copy Code
+                    </button>
+                    <button onclick="hideMessage()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Close
+                    </button>
+                </div>
+            `;
+            messageDiv.className = 'message show';
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard! Send this to your organizer.');
+            }).catch(() => {
+                alert('Please manually copy the code above.');
+            });
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message show ${type}`;
+        }
+
+        function hideMessage() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = 'message';
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
